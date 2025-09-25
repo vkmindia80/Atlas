@@ -1,0 +1,1917 @@
+openapi: 3.0.3
+info:
+  title: AtlasPM API
+  description: |
+    AtlasPM - Enterprise Portfolio & Project Management SaaS Platform API
+    
+    This comprehensive API provides full access to AtlasPM's multi-tenant enterprise portfolio and project management capabilities including:
+    
+    - Multi-tenant organization management
+    - Role-based access control (RBAC)
+    - Portfolio and project management
+    - Task tracking and assignments
+    - Time tracking with approval workflows
+    - Budget and cost management
+    - Risk and issue management (RAID logs)
+    - Document and attachment management
+    - Workflow automation and approvals
+    - Comprehensive reporting and analytics
+    - SSO and SCIM integration for enterprise identity management
+    - Webhook integrations for third-party systems
+    
+  version: 1.0.0
+  contact:
+    name: AtlasPM Support
+    email: support@atlaspm.com
+  license:
+    name: Commercial License
+    url: https://atlaspm.com/license
+
+servers:
+  - url: https://api.atlaspm.com/v1
+    description: Production server
+  - url: https://staging-api.atlaspm.com/v1
+    description: Staging server
+  - url: http://localhost:8001/api/v1
+    description: Development server
+
+security:
+  - bearerAuth: []
+  - apiKey: []
+
+tags:
+  - name: Authentication
+    description: User authentication and session management
+  - name: SCIM
+    description: System for Cross-domain Identity Management (Enterprise SSO)
+  - name: Tenants
+    description: Multi-tenant organization management
+  - name: Organizations
+    description: Organizational structure and hierarchy
+  - name: Users
+    description: User management and profiles
+  - name: Portfolios
+    description: Strategic portfolio management
+  - name: Projects
+    description: Project lifecycle management
+  - name: Tasks
+    description: Task and work item management
+  - name: Assignments
+    description: Task assignments and resource allocation
+  - name: Timesheets
+    description: Time tracking and approval workflows
+  - name: Budgets
+    description: Budget planning and allocation
+  - name: Costs
+    description: Cost tracking and expense management
+  - name: Risks
+    description: Risk and issue management (RAID logs)
+  - name: Attachments
+    description: File and document management
+  - name: Workflows
+    description: Workflow automation and approval processes
+  - name: Notifications
+    description: System notifications and alerts
+  - name: Integrations
+    description: Third-party system integrations
+  - name: Reports
+    description: Reporting and analytics
+  - name: Search
+    description: Global search and filtering
+  - name: Webhooks
+    description: Webhook management for real-time integrations
+  - name: Admin
+    description: Platform administration
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    apiKey:
+      type: apiKey
+      in: header
+      name: X-API-Key
+
+  schemas:
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+        details:
+          type: object
+        timestamp:
+          type: string
+          format: date-time
+      required:
+        - error
+        - message
+
+    PaginationMeta:
+      type: object
+      properties:
+        page:
+          type: integer
+          minimum: 1
+        limit:
+          type: integer
+          minimum: 1
+          maximum: 100
+        total:
+          type: integer
+        pages:
+          type: integer
+        has_next:
+          type: boolean
+        has_prev:
+          type: boolean
+
+    # Authentication Schemas
+    LoginRequest:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+        tenant_code:
+          type: string
+      required:
+        - username
+        - password
+        - tenant_code
+
+    TokenResponse:
+      type: object
+      properties:
+        access_token:
+          type: string
+        refresh_token:
+          type: string
+        token_type:
+          type: string
+          default: bearer
+        expires_in:
+          type: integer
+        user:
+          $ref: '#/components/schemas/User'
+
+    # Core Entity Schemas
+    Tenant:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        code:
+          type: string
+        domain:
+          type: string
+        status:
+          type: string
+          enum: [active, suspended, trial, cancelled]
+        plan:
+          type: string
+          enum: [starter, professional, enterprise]
+        admin_email:
+          type: string
+          format: email
+        admin_name:
+          type: string
+        max_users:
+          type: integer
+        max_projects:
+          type: integer
+        settings:
+          type: object
+        sso_enabled:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    Organization:
+      type: object
+      properties:
+        id:
+          type: string
+        tenant_id:
+          type: string
+        name:
+          type: string
+        code:
+          type: string
+        description:
+          type: string
+        parent_org_id:
+          type: string
+        org_level:
+          type: integer
+        manager_id:
+          type: string
+        cost_center:
+          type: string
+        budget_amount:
+          type: number
+        is_active:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+        tenant_id:
+          type: string
+        org_id:
+          type: string
+        username:
+          type: string
+        email:
+          type: string
+          format: email
+        full_name:
+          type: string
+        role:
+          type: string
+          enum: [admin, pmo_admin, portfolio_manager, project_manager, resource, finance, viewer]
+        status:
+          type: string
+          enum: [active, inactive, suspended, pending_verification]
+        job_title:
+          type: string
+        department:
+          type: string
+        phone:
+          type: string
+        avatar_url:
+          type: string
+        manager_id:
+          type: string
+        hourly_rate:
+          type: number
+        last_login:
+          type: string
+          format: date-time
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    Portfolio:
+      type: object
+      properties:
+        id:
+          type: string
+        tenant_id:
+          type: string
+        org_id:
+          type: string
+        name:
+          type: string
+        code:
+          type: string
+        description:
+          type: string
+        portfolio_type:
+          type: string
+          enum: [strategic, operational, innovation, maintenance]
+        status:
+          type: string
+          enum: [draft, active, on_hold, completed, cancelled]
+        health_status:
+          type: string
+          enum: [green, yellow, red]
+        priority:
+          type: string
+          enum: [low, medium, high, critical]
+        portfolio_manager_id:
+          type: string
+        sponsors:
+          type: array
+          items:
+            type: string
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+        financial_metrics:
+          type: object
+        risk_metrics:
+          type: object
+        project_count:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    Project:
+      type: object
+      properties:
+        id:
+          type: string
+        tenant_id:
+          type: string
+        org_id:
+          type: string
+        portfolio_id:
+          type: string
+        parent_project_id:
+          type: string
+        name:
+          type: string
+        code:
+          type: string
+        description:
+          type: string
+        project_type:
+          type: string
+          enum: [software_development, infrastructure, research, marketing, process_improvement, compliance, other]
+        methodology:
+          type: string
+          enum: [waterfall, agile, scrum, kanban, hybrid, lean]
+        status:
+          type: string
+          enum: [draft, active, on_hold, completed, cancelled]
+        health_status:
+          type: string
+          enum: [green, yellow, red]
+        priority:
+          type: string
+          enum: [low, medium, high, critical]
+        project_manager_id:
+          type: string
+        sponsor_id:
+          type: string
+        team_members:
+          type: array
+          items:
+            type: string
+        planned_start_date:
+          type: string
+          format: date
+        planned_end_date:
+          type: string
+          format: date
+        actual_start_date:
+          type: string
+          format: date
+        actual_end_date:
+          type: string
+          format: date
+        percent_complete:
+          type: number
+          minimum: 0
+          maximum: 100
+        financials:
+          type: object
+        risk_score:
+          type: number
+          minimum: 0
+          maximum: 1
+        open_issues_count:
+          type: integer
+        open_risks_count:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    Task:
+      type: object
+      properties:
+        id:
+          type: string
+        tenant_id:
+          type: string
+        project_id:
+          type: string
+        parent_task_id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        task_type:
+          type: string
+          enum: [story, task, bug, epic, subtask]
+        status:
+          type: string
+          enum: [backlog, todo, in_progress, review, done, cancelled]
+        priority:
+          type: string
+          enum: [low, medium, high, critical]
+        assignee_id:
+          type: string
+        reporter_id:
+          type: string
+        estimated_hours:
+          type: number
+        actual_hours:
+          type: number
+        remaining_hours:
+          type: number
+        story_points:
+          type: integer
+        planned_start_date:
+          type: string
+          format: date
+        planned_end_date:
+          type: string
+          format: date
+        due_date:
+          type: string
+          format: date
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+paths:
+  # Authentication Endpoints
+  /auth/login:
+    post:
+      tags:
+        - Authentication
+      summary: User login
+      description: Authenticate user and return JWT tokens
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+        '401':
+          description: Invalid credentials
+        '403':
+          description: Account suspended or inactive
+
+  /auth/refresh:
+    post:
+      tags:
+        - Authentication
+      summary: Refresh access token
+      description: Refresh access token using refresh token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                refresh_token:
+                  type: string
+      responses:
+        '200':
+          description: Token refreshed successfully
+        '401':
+          description: Invalid refresh token
+
+  /auth/logout:
+    post:
+      tags:
+        - Authentication
+      summary: User logout
+      description: Logout user and invalidate tokens
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Logout successful
+
+  /auth/me:
+    get:
+      tags:
+        - Authentication
+      summary: Get current user info
+      description: Get authenticated user information
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: User information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+
+  # SCIM Endpoints (Enterprise SSO)
+  /scim/v2/Users:
+    get:
+      tags:
+        - SCIM
+      summary: List users (SCIM)
+      description: SCIM endpoint to list all users for SSO provisioning
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: filter
+          in: query
+          schema:
+            type: string
+          description: SCIM filter expression
+        - name: count
+          in: query
+          schema:
+            type: integer
+          description: Number of results to return
+        - name: startIndex
+          in: query
+          schema:
+            type: integer
+          description: Starting index for pagination
+      responses:
+        '200':
+          description: SCIM user list response
+    post:
+      tags:
+        - SCIM
+      summary: Create user (SCIM)
+      description: SCIM endpoint to create a new user
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/scim+json:
+            schema:
+              type: object
+      responses:
+        '201':
+          description: User created successfully
+        '400':
+          description: Invalid SCIM request
+        '409':
+          description: User already exists
+
+  /scim/v2/Users/{userId}:
+    get:
+      tags:
+        - SCIM
+      summary: Get user (SCIM)
+      description: SCIM endpoint to get user by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: SCIM user response
+        '404':
+          description: User not found
+    put:
+      tags:
+        - SCIM
+      summary: Update user (SCIM)
+      description: SCIM endpoint to update user
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/scim+json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: User updated successfully
+        '404':
+          description: User not found
+    delete:
+      tags:
+        - SCIM
+      summary: Delete user (SCIM)
+      description: SCIM endpoint to delete/deactivate user
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: User deleted successfully
+        '404':
+          description: User not found
+
+  # Tenant Management
+  /tenants:
+    get:
+      tags:
+        - Tenants
+      summary: List tenants
+      description: Get list of tenants (admin only)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [active, suspended, trial, cancelled]
+        - name: plan
+          in: query
+          schema:
+            type: string
+            enum: [starter, professional, enterprise]
+      responses:
+        '200':
+          description: Tenant list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Tenant'
+                  meta:
+                    $ref: '#/components/schemas/PaginationMeta'
+    post:
+      tags:
+        - Tenants
+      summary: Create tenant
+      description: Create a new tenant organization
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                code:
+                  type: string
+                domain:
+                  type: string
+                admin_email:
+                  type: string
+                  format: email
+                admin_name:
+                  type: string
+                plan:
+                  type: string
+                  enum: [starter, professional, enterprise]
+              required:
+                - name
+                - code
+                - domain
+                - admin_email
+                - admin_name
+      responses:
+        '201':
+          description: Tenant created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tenant'
+        '400':
+          description: Invalid request data
+        '409':
+          description: Tenant code or domain already exists
+
+  /tenants/{tenantId}:
+    get:
+      tags:
+        - Tenants
+      summary: Get tenant
+      description: Get tenant by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: tenantId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Tenant details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tenant'
+        '404':
+          description: Tenant not found
+    put:
+      tags:
+        - Tenants
+      summary: Update tenant
+      description: Update tenant information
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: tenantId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                domain:
+                  type: string
+                admin_email:
+                  type: string
+                  format: email
+                admin_name:
+                  type: string
+                status:
+                  type: string
+                  enum: [active, suspended, trial, cancelled]
+                plan:
+                  type: string
+                  enum: [starter, professional, enterprise]
+                max_users:
+                  type: integer
+                max_projects:
+                  type: integer
+      responses:
+        '200':
+          description: Tenant updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tenant'
+        '404':
+          description: Tenant not found
+
+  # Users
+  /users:
+    get:
+      tags:
+        - Users
+      summary: List users
+      description: Get list of users in current tenant
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: role
+          in: query
+          schema:
+            type: string
+            enum: [admin, pmo_admin, portfolio_manager, project_manager, resource, finance, viewer]
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [active, inactive, suspended, pending_verification]
+        - name: org_id
+          in: query
+          schema:
+            type: string
+        - name: search
+          in: query
+          schema:
+            type: string
+          description: Search by name, email, or username
+      responses:
+        '200':
+          description: User list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/User'
+                  meta:
+                    $ref: '#/components/schemas/PaginationMeta'
+    post:
+      tags:
+        - Users
+      summary: Create user
+      description: Create a new user in the tenant
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                full_name:
+                  type: string
+                password:
+                  type: string
+                role:
+                  type: string
+                  enum: [admin, pmo_admin, portfolio_manager, project_manager, resource, finance, viewer]
+                org_id:
+                  type: string
+                job_title:
+                  type: string
+                department:
+                  type: string
+                phone:
+                  type: string
+                manager_id:
+                  type: string
+                hourly_rate:
+                  type: number
+              required:
+                - username
+                - email
+                - full_name
+                - password
+                - role
+      responses:
+        '201':
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Invalid request data
+        '409':
+          description: Username or email already exists
+
+  /users/{userId}:
+    get:
+      tags:
+        - Users
+      summary: Get user
+      description: Get user by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: User details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: User not found
+    put:
+      tags:
+        - Users
+      summary: Update user
+      description: Update user information
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                full_name:
+                  type: string
+                role:
+                  type: string
+                  enum: [admin, pmo_admin, portfolio_manager, project_manager, resource, finance, viewer]
+                status:
+                  type: string
+                  enum: [active, inactive, suspended]
+                org_id:
+                  type: string
+                job_title:
+                  type: string
+                department:
+                  type: string
+                phone:
+                  type: string
+                manager_id:
+                  type: string
+                hourly_rate:
+                  type: number
+      responses:
+        '200':
+          description: User updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: User not found
+    delete:
+      tags:
+        - Users
+      summary: Delete user
+      description: Deactivate user account
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: User deactivated successfully
+        '404':
+          description: User not found
+
+  # Portfolios
+  /portfolios:
+    get:
+      tags:
+        - Portfolios
+      summary: List portfolios
+      description: Get list of portfolios in current tenant
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [draft, active, on_hold, completed, cancelled]
+        - name: portfolio_type
+          in: query
+          schema:
+            type: string
+            enum: [strategic, operational, innovation, maintenance]
+        - name: health_status
+          in: query
+          schema:
+            type: string
+            enum: [green, yellow, red]
+        - name: org_id
+          in: query
+          schema:
+            type: string
+        - name: manager_id
+          in: query
+          schema:
+            type: string
+        - name: search
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Portfolio list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Portfolio'
+                  meta:
+                    $ref: '#/components/schemas/PaginationMeta'
+    post:
+      tags:
+        - Portfolios
+      summary: Create portfolio
+      description: Create a new portfolio
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                code:
+                  type: string
+                description:
+                  type: string
+                portfolio_type:
+                  type: string
+                  enum: [strategic, operational, innovation, maintenance]
+                priority:
+                  type: string
+                  enum: [low, medium, high, critical]
+                portfolio_manager_id:
+                  type: string
+                org_id:
+                  type: string
+                sponsors:
+                  type: array
+                  items:
+                    type: string
+                start_date:
+                  type: string
+                  format: date
+                end_date:
+                  type: string
+                  format: date
+              required:
+                - name
+                - code
+                - portfolio_type
+                - portfolio_manager_id
+      responses:
+        '201':
+          description: Portfolio created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Portfolio'
+        '400':
+          description: Invalid request data
+        '409':
+          description: Portfolio code already exists
+
+  /portfolios/{portfolioId}:
+    get:
+      tags:
+        - Portfolios
+      summary: Get portfolio
+      description: Get portfolio by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: portfolioId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Portfolio details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Portfolio'
+        '404':
+          description: Portfolio not found
+    put:
+      tags:
+        - Portfolios
+      summary: Update portfolio
+      description: Update portfolio information
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: portfolioId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                portfolio_type:
+                  type: string
+                  enum: [strategic, operational, innovation, maintenance]
+                status:
+                  type: string
+                  enum: [draft, active, on_hold, completed, cancelled]
+                health_status:
+                  type: string
+                  enum: [green, yellow, red]
+                priority:
+                  type: string
+                  enum: [low, medium, high, critical]
+                portfolio_manager_id:
+                  type: string
+                sponsors:
+                  type: array
+                  items:
+                    type: string
+                start_date:
+                  type: string
+                  format: date
+                end_date:
+                  type: string
+                  format: date
+      responses:
+        '200':
+          description: Portfolio updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Portfolio'
+        '404':
+          description: Portfolio not found
+    delete:
+      tags:
+        - Portfolios
+      summary: Delete portfolio
+      description: Soft delete portfolio
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: portfolioId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Portfolio deleted successfully
+        '404':
+          description: Portfolio not found
+        '400':
+          description: Cannot delete portfolio with active projects
+
+  # Projects
+  /projects:
+    get:
+      tags:
+        - Projects
+      summary: List projects
+      description: Get list of projects in current tenant
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: portfolio_id
+          in: query
+          schema:
+            type: string
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [draft, active, on_hold, completed, cancelled]
+        - name: project_type
+          in: query
+          schema:
+            type: string
+            enum: [software_development, infrastructure, research, marketing, process_improvement, compliance, other]
+        - name: health_status
+          in: query
+          schema:
+            type: string
+            enum: [green, yellow, red]
+        - name: manager_id
+          in: query
+          schema:
+            type: string
+        - name: org_id
+          in: query
+          schema:
+            type: string
+        - name: search
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Project list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Project'
+                  meta:
+                    $ref: '#/components/schemas/PaginationMeta'
+    post:
+      tags:
+        - Projects
+      summary: Create project
+      description: Create a new project
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                code:
+                  type: string
+                description:
+                  type: string
+                project_type:
+                  type: string
+                  enum: [software_development, infrastructure, research, marketing, process_improvement, compliance, other]
+                methodology:
+                  type: string
+                  enum: [waterfall, agile, scrum, kanban, hybrid, lean]
+                priority:
+                  type: string
+                  enum: [low, medium, high, critical]
+                portfolio_id:
+                  type: string
+                parent_project_id:
+                  type: string
+                project_manager_id:
+                  type: string
+                sponsor_id:
+                  type: string
+                org_id:
+                  type: string
+                planned_start_date:
+                  type: string
+                  format: date
+                planned_end_date:
+                  type: string
+                  format: date
+              required:
+                - name
+                - code
+                - project_type
+                - project_manager_id
+      responses:
+        '201':
+          description: Project created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+        '400':
+          description: Invalid request data
+        '409':
+          description: Project code already exists
+
+  /projects/{projectId}:
+    get:
+      tags:
+        - Projects
+      summary: Get project
+      description: Get project by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Project details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+        '404':
+          description: Project not found
+    put:
+      tags:
+        - Projects
+      summary: Update project
+      description: Update project information
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              # Similar properties as create but all optional
+      responses:
+        '200':
+          description: Project updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+        '404':
+          description: Project not found
+    delete:
+      tags:
+        - Projects
+      summary: Delete project
+      description: Soft delete project
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Project deleted successfully
+        '404':
+          description: Project not found
+        '400':
+          description: Cannot delete project with active tasks
+
+  # Tasks
+  /tasks:
+    get:
+      tags:
+        - Tasks
+      summary: List tasks
+      description: Get list of tasks
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: project_id
+          in: query
+          schema:
+            type: string
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [backlog, todo, in_progress, review, done, cancelled]
+        - name: assignee_id
+          in: query
+          schema:
+            type: string
+        - name: reporter_id
+          in: query
+          schema:
+            type: string
+        - name: task_type
+          in: query
+          schema:
+            type: string
+            enum: [story, task, bug, epic, subtask]
+        - name: priority
+          in: query
+          schema:
+            type: string
+            enum: [low, medium, high, critical]
+        - name: due_date_from
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: due_date_to
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: search
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Task list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Task'
+                  meta:
+                    $ref: '#/components/schemas/PaginationMeta'
+    post:
+      tags:
+        - Tasks
+      summary: Create task
+      description: Create a new task
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                task_type:
+                  type: string
+                  enum: [story, task, bug, epic, subtask]
+                priority:
+                  type: string
+                  enum: [low, medium, high, critical]
+                project_id:
+                  type: string
+                parent_task_id:
+                  type: string
+                assignee_id:
+                  type: string
+                estimated_hours:
+                  type: number
+                story_points:
+                  type: integer
+                planned_start_date:
+                  type: string
+                  format: date
+                planned_end_date:
+                  type: string
+                  format: date
+                due_date:
+                  type: string
+                  format: date
+              required:
+                - name
+                - project_id
+      responses:
+        '201':
+          description: Task created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+
+  /tasks/{taskId}:
+    get:
+      tags:
+        - Tasks
+      summary: Get task
+      description: Get task by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: taskId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Task details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+        '404':
+          description: Task not found
+
+  # Bulk Operations
+  /bulk/projects:
+    post:
+      tags:
+        - Projects
+      summary: Bulk create projects
+      description: Create multiple projects at once
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                projects:
+                  type: array
+                  items:
+                    type: object
+                    # Project creation schema
+      responses:
+        '201':
+          description: Projects created successfully
+        '400':
+          description: Invalid request data
+
+  /bulk/tasks:
+    post:
+      tags:
+        - Tasks
+      summary: Bulk create tasks
+      description: Create multiple tasks at once
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                tasks:
+                  type: array
+                  items:
+                    type: object
+                    # Task creation schema
+      responses:
+        '201':
+          description: Tasks created successfully
+        '400':
+          description: Invalid request data
+
+  # Search Endpoints
+  /search:
+    get:
+      tags:
+        - Search
+      summary: Global search
+      description: Search across all entities
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Search query
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [portfolios, projects, tasks, users, all]
+          description: Entity type to search
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        '200':
+          description: Search results
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  query:
+                    type: string
+                  results:
+                    type: object
+                    properties:
+                      portfolios:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Portfolio'
+                      projects:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Project'
+                      tasks:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Task'
+                      users:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/User'
+                  meta:
+                    $ref: '#/components/schemas/PaginationMeta'
+
+  # Webhook Management
+  /webhooks:
+    get:
+      tags:
+        - Webhooks
+      summary: List webhooks
+      description: Get list of configured webhooks
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Webhook list
+    post:
+      tags:
+        - Webhooks
+      summary: Create webhook
+      description: Create a new webhook subscription
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                url:
+                  type: string
+                  format: uri
+                events:
+                  type: array
+                  items:
+                    type: string
+                secret:
+                  type: string
+                active:
+                  type: boolean
+              required:
+                - url
+                - events
+      responses:
+        '201':
+          description: Webhook created successfully
+
+  /webhooks/{webhookId}:
+    get:
+      tags:
+        - Webhooks
+      summary: Get webhook
+      description: Get webhook by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: webhookId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Webhook details
+        '404':
+          description: Webhook not found
+    put:
+      tags:
+        - Webhooks
+      summary: Update webhook
+      description: Update webhook configuration
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: webhookId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Webhook updated successfully
+        '404':
+          description: Webhook not found
+    delete:
+      tags:
+        - Webhooks
+      summary: Delete webhook
+      description: Delete webhook subscription
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: webhookId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Webhook deleted successfully
+        '404':
+          description: Webhook not found
+
+  # Analytics and Reporting
+  /analytics/dashboard:
+    get:
+      tags:
+        - Reports
+      summary: Get dashboard analytics
+      description: Get comprehensive dashboard analytics
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: portfolio_id
+          in: query
+          schema:
+            type: string
+        - name: org_id
+          in: query
+          schema:
+            type: string
+        - name: date_from
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: date_to
+          in: query
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Dashboard analytics data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  overview:
+                    type: object
+                  portfolio_health:
+                    type: object
+                  project_status:
+                    type: object
+                  budget_utilization:
+                    type: object
+                  resource_allocation:
+                    type: object
+                  risk_summary:
+                    type: object
+
+  /analytics/reports:
+    get:
+      tags:
+        - Reports
+      summary: List available reports
+      description: Get list of available reports and dashboards
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Available reports list
+    post:
+      tags:
+        - Reports
+      summary: Generate custom report
+      description: Generate a custom report based on parameters
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                report_type:
+                  type: string
+                  enum: [portfolio_summary, project_status, resource_utilization, budget_analysis, risk_report]
+                parameters:
+                  type: object
+                output_format:
+                  type: string
+                  enum: [json, csv, pdf, excel]
+              required:
+                - report_type
+      responses:
+        '200':
+          description: Report generated successfully
+        '202':
+          description: Report generation started (async)
+
+# Additional endpoints would continue in this pattern for:
+# - Timesheets (time tracking and approval)
+# - Budgets (budget planning and allocation)  
+# - Costs (expense tracking and management)
+# - Risks (RAID logs and risk management)
+# - Attachments (file and document management)
+# - Workflows (approval processes and automation)
+# - Notifications (alerts and messaging)
+# - Organizations (organizational hierarchy)
+# - Assignments (task assignments and resource allocation)
+# - Integrations (third-party system connections)
+# - Admin endpoints (platform administration)
