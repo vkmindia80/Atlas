@@ -3,8 +3,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from app.core.config import settings
 from app.core.database import connect_to_mongo, close_mongo_connection
-from app.core.middleware import TenantMiddleware
-from app.api.v1 import auth, users, portfolios, projects, admin
+# from app.core.middleware import TenantMiddleware
+from app.api.v1 import auth
+# from app.api.v1 import users, portfolios, projects, admin
 import uvicorn
 
 # Create FastAPI application
