@@ -1,10 +1,10 @@
 from datetime import datetime, timedelta
 from typing import Any, Union, Optional
 from jose import jwt, JWTError
-from werkzeug.security import generate_password_hash, check_password_hash
 from fastapi import HTTPException, status
 from .config import settings
 import uuid
+import hashlib
 
 # Using werkzeug for password hashing instead of bcrypt due to compatibility issues
 
