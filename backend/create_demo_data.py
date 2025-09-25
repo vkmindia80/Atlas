@@ -303,7 +303,7 @@ async def create_demo_data():
                         {
                             "id": str(uuid.uuid4()),
                             "name": "Phase 1 Completion", 
-                            "planned_date": date.today() + timedelta(days=30),
+                            "planned_date": datetime.utcnow() + timedelta(days=30),
                             "status": "in_progress"
                         },
                         {
