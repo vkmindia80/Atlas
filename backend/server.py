@@ -26,8 +26,8 @@ app.add_middleware(
 )
 
 # Add tenant isolation middleware
-from app.core.middleware import TenantMiddleware
-app.add_middleware(TenantMiddleware)
+# from app.core.middleware import TenantMiddleware
+# app.add_middleware(TenantMiddleware)
 
 # Global exception handler
 @app.exception_handler(Exception)
