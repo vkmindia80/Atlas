@@ -297,7 +297,7 @@ async def create_demo_data():
                         {
                             "id": str(uuid.uuid4()),
                             "name": "Project Kickoff",
-                            "planned_date": date.today() + timedelta(days=7),
+                            "planned_date": datetime.utcnow() + timedelta(days=7),
                             "status": "completed"
                         },
                         {
