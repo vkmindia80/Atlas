@@ -110,7 +110,7 @@ export const Sidebar: React.FC = () => {
                 className="ml-3 p-1 text-gray-400 hover:text-gray-500"
                 title="Logout"
               >
-                <LogoutIcon className="w-5 h-5" />
+                <ArrowRightOnRectangleIcon className="w-5 h-5" />
               </button>
             </div>
           </div>
