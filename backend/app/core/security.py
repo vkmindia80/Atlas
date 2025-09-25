@@ -57,11 +57,11 @@ def create_refresh_token(
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     """Verify a password against its hash"""
-    return pwd_context.verify(plain_password, hashed_password)
+    return check_password_hash(hashed_password, plain_password)
 
 def get_password_hash(password: str) -> str:
     """Hash a password"""
-    return pwd_context.hash(password)
+    return generate_password_hash(password)
 
 def decode_token(token: str) -> dict:
     """Decode and verify JWT token"""
