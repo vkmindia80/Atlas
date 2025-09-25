@@ -48,7 +48,7 @@ async def register_tenant_and_admin(tenant_data: TenantCreate):
         "name": tenant_data.name,
         "code": tenant_data.code,
         "domain": tenant_data.domain,
-        "status": TenantStatus.TRIAL,
+        "status": TenantStatus.ACTIVE,
         "plan": tenant_data.plan,
         "admin_email": tenant_data.admin_email,
         "admin_name": tenant_data.admin_name,
