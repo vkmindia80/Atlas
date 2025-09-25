@@ -55,13 +55,15 @@ def create_refresh_token(
     encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
     return encoded_jwt
 
+import hashlib
+
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     """Verify a password against its hash"""
-    return check_password_hash(hashed_password, plain_password)
+    return hashlib.sha256(plain_password.encode()).hexdigest() == hashed_password
 
 def get_password_hash(password: str) -> str:
     """Hash a password"""
-    return generate_password_hash(password)
+    return hashlib.sha256(password.encode()).hexdigest()
 
 def decode_token(token: str) -> dict:
     """Decode and verify JWT token"""
