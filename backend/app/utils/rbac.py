@@ -1,5 +1,3 @@
-<file>
-      <absolute_file_name>/app/backend/app/utils/rbac.py</absolute_file_name>
 from typing import List, Dict, Set
 from enum import Enum
 from ..models.user import UserRole
