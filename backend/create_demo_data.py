@@ -290,8 +290,8 @@ async def create_demo_data():
                     "project_manager_id": project_manager_id,
                     "sponsor_id": portfolio_manager_id,
                     "team_members": list(user_ids[tenant_key].values())[:4],
-                    "planned_start_date": date.today(),
-                    "planned_end_date": date.today() + timedelta(days=90),
+                    "planned_start_date": datetime.utcnow(),
+                    "planned_end_date": datetime.utcnow() + timedelta(days=90),
                     "percent_complete": 35.5,
                     "milestones": [
                         {
