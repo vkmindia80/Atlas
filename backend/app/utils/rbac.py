@@ -301,5 +301,4 @@ def get_resource_access_level(
            (resource_type == "project" and resource_id in project_access):
             return AccessLevel.READ_ONLY
     
-    return AccessLevel.NO_ACCESS</content>
-    </file>
+    return AccessLevel.NO_ACCESS
