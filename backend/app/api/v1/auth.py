@@ -62,7 +62,7 @@ async def register_tenant_and_admin(tenant_data: TenantCreate):
     # Create admin user
     admin_user_id = str(uuid.uuid4())
     admin_username = f"admin_{tenant_data.code}"
-    default_password = "Welcome123!"  # Force change on first login
+    default_password = "Demo123!"  # Force change on first login
     
     admin_user_doc = {
         "_id": admin_user_id,
