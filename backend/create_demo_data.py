@@ -9,14 +9,12 @@ import asyncio
 import uuid
 from datetime import datetime, date, timedelta
 from pymongo import MongoClient
-from passlib.context import CryptContext
+import hashlib
 from motor.motor_asyncio import AsyncIOMotorClient
 
-# Password hashing
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
 def hash_password(password: str) -> str:
-    return pwd_context.hash(password)
+    """Simple password hashing for demo purposes"""
+    return hashlib.sha256(password.encode()).hexdigest()
 
 # MongoDB connection
 MONGO_URL = "mongodb://localhost:27017/atlaspm"
