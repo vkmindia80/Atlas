@@ -84,8 +84,11 @@ class AtlasPMAPITester:
     def test_health_check(self):
         """Test health endpoint"""
         success, response = self.make_request('GET', '/health', use_auth=False)
-        self.log_test("Health Check", success, 
-                     f"Status: {response.get('status', 'unknown')}" if success else str(response))
+        if success and isinstance(response, dict):
+            details = f"Status: {response.get('status', 'unknown')}"
+        else:
+            details = str(response)
+        self.log_test("Health Check", success, details)
         return success
 
     def test_login(self, username: str, password: str, tenant_code: str) -> bool:
