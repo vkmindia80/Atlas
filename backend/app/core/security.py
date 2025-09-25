@@ -6,7 +6,7 @@ from fastapi import HTTPException, status
 from .config import settings
 import uuid
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+# Using werkzeug for password hashing instead of bcrypt due to compatibility issues
 
 def create_access_token(
     subject: Union[str, Any], 
