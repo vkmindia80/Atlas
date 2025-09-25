@@ -238,8 +238,8 @@ async def create_demo_data():
                 "sponsors": [portfolio_manager_id],
                 "stakeholders": list(user_ids[tenant_key].values())[:3],
                 "strategic_objectives": [],
-                "start_date": date.today(),
-                "end_date": date.today() + timedelta(days=365),
+                "start_date": datetime.utcnow(),
+                "end_date": datetime.utcnow() + timedelta(days=365),
                 "financial_metrics": {
                     "total_budget": 500000.00,
                     "allocated_budget": 300000.00,
