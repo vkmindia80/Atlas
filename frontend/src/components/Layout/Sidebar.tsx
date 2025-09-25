@@ -7,7 +7,7 @@ import {
   UsersIcon,
   ChartBarIcon,
   CogIcon,
-  LogoutIcon,
+  ArrowRightOnRectangleIcon,
 } from '@heroicons/react/24/outline';
 import { useAuth } from '../../store/AuthContext';
 import { UserRole } from '../../types/auth';
