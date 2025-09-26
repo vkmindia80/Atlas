@@ -6,6 +6,9 @@ import { Header } from './components/Layout/Header';
 import { Login } from './pages/Login';
 import { Dashboard } from './pages/Dashboard';
 import { Portfolios } from './pages/Portfolios';
+import { PortfolioDashboard } from './components/Portfolio/PortfolioDashboard';
+import { PortfolioList } from './components/Portfolio/PortfolioList';
+import { ProjectDetail } from './components/Project/ProjectDetail';
 import './App.css';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
