@@ -88,17 +88,14 @@ from ..models.user import User
 
 security = HTTPBearer()
 
-async def get_current_user(credentials: str = Depends(security)) -> User:
+async def get_current_user(credentials = Depends(security)):
     """Get current authenticated user"""
     from .middleware import get_current_user_and_tenant
     from .database import get_database
     
     try:
-        # Extract token from credentials
-        token = credentials.credentials if hasattr(credentials, 'credentials') else str(credentials)
-        
         # Get user info from token
-        user_info = await get_current_user_and_tenant(token)
+        user_info = await get_current_user_and_tenant(credentials)
         
         # Get full user details from database
         db = await get_database()
@@ -114,9 +111,8 @@ async def get_current_user(credentials: str = Depends(security)) -> User:
                 detail="User not found"
             )
         
-        # Convert to User model
-        user = User(**user_doc)
-        return user
+        # Return as dict for now (avoiding model conversion issues)
+        return user_doc
         
     except Exception as e:
         raise HTTPException(
