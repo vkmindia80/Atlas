@@ -439,7 +439,7 @@ async def create_portfolio_project_relationships(client, tenant_id, portfolio_id
             "alignment_score": random.uniform(0.6, 1.0),
             "contribution_weight": random.uniform(0.8, 1.2),
             "portfolio_phase": f"Phase {random.randint(1, 3)}",
-            "expected_value_delivery_date": date.today() + timedelta(days=random.randint(30, 365)),
+            "expected_value_delivery_date": (date.today() + timedelta(days=random.randint(30, 365))).isoformat(),
             "resource_rules": {
                 "max_budget_percentage": None,
                 "max_team_size": None,
