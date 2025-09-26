@@ -93,7 +93,7 @@ export const ProjectBudget: React.FC<ProjectBudgetProps> = ({
               </p>
             </div>
             <div className={`flex items-center ${isOverBudget ? 'text-red-500' : 'text-green-500'}`}>
-              {isOverBudget ? <TrendingUpIcon className="h-8 w-8" /> : <TrendingDownIcon className="h-8 w-8" />}
+              {isOverBudget ? <ArrowTrendingUpIcon className="h-8 w-8" /> : <ArrowTrendingDownIcon className="h-8 w-8" />}
             </div>
           </div>
         </div>
