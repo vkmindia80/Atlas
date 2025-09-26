@@ -80,3 +80,46 @@ def decode_token(token: str) -> dict:
             detail="Could not validate credentials",
             headers={"WWW-Authenticate": "Bearer"},
         )
+
+# Dependency function for FastAPI
+from fastapi import Depends
+from fastapi.security import HTTPBearer
+from ..models.user import User
+
+security = HTTPBearer()
+
+async def get_current_user(credentials: str = Depends(security)) -> User:
+    """Get current authenticated user"""
+    from .middleware import get_current_user_and_tenant
+    from .database import get_database
+    
+    try:
+        # Extract token from credentials
+        token = credentials.credentials if hasattr(credentials, 'credentials') else str(credentials)
+        
+        # Get user info from token
+        user_info = await get_current_user_and_tenant(token)
+        
+        # Get full user details from database
+        db = await get_database()
+        users_collection = db.get_default_database().users
+        user_doc = await users_collection.find_one({
+            "_id": user_info["user_id"],
+            "tenant_id": user_info["tenant_id"]
+        })
+        
+        if not user_doc:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="User not found"
+            )
+        
+        # Convert to User model
+        user = User(**user_doc)
+        return user
+        
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Could not validate credentials"
+        )
