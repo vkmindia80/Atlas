@@ -251,8 +251,8 @@ async def create_sample_portfolios(client, tenant_id, user_ids):
             "stakeholders": random.sample(user_ids[2:], 2),
             "strategic_objectives": [],
             "business_case_url": None,
-            "start_date": date.today() - timedelta(days=random.randint(30, 365)),
-            "end_date": date.today() + timedelta(days=random.randint(180, 730)),
+            "start_date": (date.today() - timedelta(days=random.randint(30, 365))).isoformat(),
+            "end_date": (date.today() + timedelta(days=random.randint(180, 730))).isoformat(),
             "financial_metrics": {
                 "total_budget": portfolio_template["budget"],
                 "allocated_budget": portfolio_template["budget"] * 0.8,
