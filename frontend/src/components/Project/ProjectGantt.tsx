@@ -1,4 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { format, addDays, startOfWeek, endOfWeek, differenceInDays, parseISO, isValid } from 'date-fns';
+import { ChevronLeftIcon, ChevronRightIcon, CalendarIcon, ClockIcon } from '@heroicons/react/24/outline';
 import { ProjectDetail } from '../../types/project';
 
 interface ProjectGanttProps {
