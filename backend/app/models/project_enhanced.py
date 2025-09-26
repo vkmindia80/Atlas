@@ -1,233 +1,190 @@
 from pydantic import BaseModel, Field
-from typing import Optional, List, Dict, Any, Union
+from typing import Optional, List, Dict, Any
 from datetime import datetime, date
 from decimal import Decimal
 from .common import BaseDocument, Priority, Status, HealthStatus
-from .project import ProjectType, ProjectMethodology, MilestoneStatus, Milestone, ProjectFinancials, ResourceAllocation
+from .project import ProjectType, ProjectMethodology
 from enum import Enum
 
-class ProjectPhase(str, Enum):
-    INITIATION = "initiation"
-    PLANNING = "planning"
-    EXECUTION = "execution"
-    MONITORING = "monitoring"
-    CLOSURE = "closure"
+class ProjectPhaseStatus(str, Enum):
+    NOT_STARTED = "not_started"
+    IN_PROGRESS = "in_progress"
+    COMPLETED = "completed"
+    ON_HOLD = "on_hold"
+    CANCELLED = "cancelled"
 
 class ApprovalStatus(str, Enum):
     PENDING = "pending"
     APPROVED = "approved"
     REJECTED = "rejected"
-    WITHDRAWN = "withdrawn"
+    NEEDS_REVISION = "needs_revision"
 
-class DependencyType(str, Enum):
-    FINISH_TO_START = "finish_to_start"
-    START_TO_START = "start_to_start"
-    FINISH_TO_FINISH = "finish_to_finish"
-    START_TO_FINISH = "start_to_finish"
-
-class TaskStatus(str, Enum):
-    NOT_STARTED = "not_started"
-    IN_PROGRESS = "in_progress"
-    ON_HOLD = "on_hold"
-    COMPLETED = "completed"
-    CANCELLED = "cancelled"
-
-class IssueType(str, Enum):
-    BUG = "bug"
-    TASK = "task"
-    STORY = "story"
-    EPIC = "epic"
-    IMPROVEMENT = "improvement"
-    BLOCKER = "blocker"
-
-class RiskLevel(str, Enum):
-    LOW = "low"
-    MEDIUM = "medium"
-    HIGH = "high"
-    CRITICAL = "critical"
-
-class ProjectDependency(BaseModel):
-    """Project dependency model"""
-    id: str = Field(default_factory=lambda: str(__import__('uuid').uuid4()))
-    predecessor_project_id: Optional[str] = None
-    predecessor_task_id: Optional[str] = None
-    successor_project_id: Optional[str] = None
-    successor_task_id: Optional[str] = None
-    dependency_type: DependencyType = DependencyType.FINISH_TO_START
-    lag_days: int = 0  # Lag time in days
-    description: Optional[str] = None
-    is_critical_path: bool = False
-
-class ProjectTask(BaseModel):
-    """Enhanced task model with dependencies"""
+class ProjectPhase(BaseModel):
+    """Project phase model"""
     id: str = Field(default_factory=lambda: str(__import__('uuid').uuid4()))
     name: str
     description: Optional[str] = None
-    status: TaskStatus = TaskStatus.NOT_STARTED
-    priority: Priority = Priority.MEDIUM
-    
-    # Assignment
-    assignee_id: Optional[str] = None
-    reviewer_id: Optional[str] = None
-    
-    # Timeline
+    phase_order: int
+    status: ProjectPhaseStatus = ProjectPhaseStatus.NOT_STARTED
     planned_start_date: Optional[date] = None
     planned_end_date: Optional[date] = None
     actual_start_date: Optional[date] = None
     actual_end_date: Optional[date] = None
+    budget_allocated: Decimal = Field(default=Decimal('0'))
+    deliverables: List[str] = Field(default_factory=list)
+    success_criteria: List[str] = Field(default_factory=list)
     
-    # Effort estimation
-    estimated_hours: Optional[float] = None
-    actual_hours: Optional[float] = None
-    percent_complete: float = Field(default=0.0, ge=0, le=100)
-    
-    # Hierarchy
-    parent_task_id: Optional[str] = None
-    subtasks: List[str] = Field(default_factory=list)  # Task IDs
-    
-    # Dependencies
-    dependencies: List[ProjectDependency] = Field(default_factory=list)
-    
-    # Tags and labels
-    labels: List[str] = Field(default_factory=list)
-    tags: List[str] = Field(default_factory=list)
-    
-    # Story points for agile projects
-    story_points: Optional[int] = None
-    
-    class Config:
-        json_encoders = {
-            date: lambda v: v.isoformat(),
-            datetime: lambda v: v.isoformat()
-        }
-
-class ProjectIssue(BaseModel):
-    """Project issue/bug tracking"""
-    id: str = Field(default_factory=lambda: str(__import__('uuid').uuid4()))
-    title: str
-    description: Optional[str] = None
-    issue_type: IssueType
-    status: Status = Status.ACTIVE
-    priority: Priority = Priority.MEDIUM
-    
-    # Assignment
-    reporter_id: str
-    assignee_id: Optional[str] = None
-    
-    # Timeline
-    created_date: date = Field(default_factory=lambda: datetime.now().date())
-    due_date: Optional[date] = None
-    resolved_date: Optional[date] = None
-    
-    # Relationships
-    related_task_id: Optional[str] = None
-    blocked_tasks: List[str] = Field(default_factory=list)
-    
-    # Resolution
-    resolution: Optional[str] = None
-    resolution_notes: Optional[str] = None
-    
-    # Metadata
-    labels: List[str] = Field(default_factory=list)
-    estimated_hours: Optional[float] = None
-
-class ProjectRisk(BaseModel):
-    """Project risk management"""
-    id: str = Field(default_factory=lambda: str(__import__('uuid').uuid4()))
-    title: str
-    description: str
-    risk_level: RiskLevel
-    probability: float = Field(..., ge=0, le=1)  # 0-1 probability
-    impact: float = Field(..., ge=0, le=1)  # 0-1 impact score
-    
-    # Ownership
-    owner_id: str
-    identified_by: str
-    identified_date: date = Field(default_factory=lambda: datetime.now().date())
-    
-    # Status tracking
-    status: Status = Status.ACTIVE
-    
-    # Mitigation
-    mitigation_plan: Optional[str] = None
-    contingency_plan: Optional[str] = None
-    mitigation_cost: Optional[Decimal] = None
-    
-    # Timeline
-    target_resolution_date: Optional[date] = None
-    actual_resolution_date: Optional[date] = None
-    
-    # Impact areas
-    affected_tasks: List[str] = Field(default_factory=list)
-    affected_milestones: List[str] = Field(default_factory=list)
-
-class ProjectApproval(BaseModel):
-    """Project approval workflow"""
-    id: str = Field(default_factory=lambda: str(__import__('uuid').uuid4()))
-    approval_type: str  # "initiation", "baseline", "change_request", "closure"
-    status: ApprovalStatus = ApprovalStatus.PENDING
-    
-    # Request details
-    requested_by: str
-    request_date: datetime = Field(default_factory=datetime.utcnow)
-    description: str
-    justification: Optional[str] = None
-    
-    # Approval workflow
-    approver_id: str
-    approval_date: Optional[datetime] = None
-    approval_comments: Optional[str] = None
-    
-    # Attached documents
-    document_urls: List[str] = Field(default_factory=list)
-
 class ProjectBaseline(BaseModel):
     """Project baseline snapshot"""
     id: str = Field(default_factory=lambda: str(__import__('uuid').uuid4()))
     name: str
     description: Optional[str] = None
-    baseline_date: date = Field(default_factory=lambda: datetime.now().date())
+    baseline_date: datetime = Field(default_factory=datetime.utcnow)
     created_by: str
     
-    # Baseline data snapshot
+    # Baseline data
     planned_start_date: Optional[date] = None
     planned_end_date: Optional[date] = None
     total_budget: Decimal = Field(default=Decimal('0'))
-    milestones_snapshot: List[Milestone] = Field(default_factory=list)
-    tasks_snapshot: List[ProjectTask] = Field(default_factory=list)
-    resource_snapshot: List[ResourceAllocation] = Field(default_factory=list)
+    scope_description: Optional[str] = None
+    key_milestones: List[Dict[str, Any]] = Field(default_factory=list)
     
-    # Comparison metrics (calculated fields)
-    schedule_variance_days: Optional[int] = None
-    cost_variance: Optional[Decimal] = None
-    scope_change_count: int = 0
-
-class ProjectTemplate(BaseModel):
-    """Project template for standardized project creation"""
+    # Snapshot metadata
+    is_current_baseline: bool = False
+    
+class ProjectApproval(BaseModel):
+    """Project approval workflow"""
     id: str = Field(default_factory=lambda: str(__import__('uuid').uuid4()))
-    name: str
+    approval_type: str  # "initiation", "phase_gate", "scope_change", "budget_change"
+    status: ApprovalStatus = ApprovalStatus.PENDING
+    requested_by: str
+    requested_date: datetime = Field(default_factory=datetime.utcnow)
+    
+    # Approval details
+    title: str
+    description: Optional[str] = None
+    justification: Optional[str] = None
+    impact_analysis: Optional[str] = None
+    
+    # Approvers
+    required_approvers: List[str] = Field(default_factory=list)  # User IDs
+    approvals_received: List[Dict[str, Any]] = Field(default_factory=list)
+    
+    # Timeline
+    due_date: Optional[datetime] = None
+    approved_date: Optional[datetime] = None
+    rejected_date: Optional[datetime] = None
+
+class ProjectTemplate(BaseDocument):
+    """Project template for standardization"""
+    name: str = Field(..., max_length=200)
     description: Optional[str] = None
     project_type: ProjectType
     methodology: ProjectMethodology
     
-    # Template data
-    template_tasks: List[ProjectTask] = Field(default_factory=list)
-    template_milestones: List[Milestone] = Field(default_factory=list)
-    template_phases: List[str] = Field(default_factory=list)
+    # Template structure
+    phases: List[ProjectPhase] = Field(default_factory=list)
+    default_milestones: List[Dict[str, Any]] = Field(default_factory=list)
+    task_templates: List[Dict[str, Any]] = Field(default_factory=list)
     
-    # Default settings
-    default_duration_days: Optional[int] = None
-    default_budget: Optional[Decimal] = None
-    required_roles: List[str] = Field(default_factory=list)
+    # Configuration
+    estimated_duration_days: Optional[int] = None
+    estimated_budget: Optional[Decimal] = None
+    required_skills: List[str] = Field(default_factory=list)
     
     # Usage tracking
     usage_count: int = 0
     is_active: bool = True
-    created_by: str
 
-class EnhancedProject(BaseDocument):
-    """Enhanced project model with lifecycle management"""
-    # Basic information (inherited from original Project)
+class ProjectIntakeForm(BaseDocument):
+    """Project intake form for project requests"""
+    # Request details
+    project_title: str
+    business_justification: str
+    project_description: str
+    expected_benefits: str
+    
+    # Requestor information
+    requestor_id: str
+    requestor_department: str
+    sponsor_id: Optional[str] = None
+    
+    # Project details
+    project_type: ProjectType
+    priority: Priority
+    requested_start_date: Optional[date] = None
+    requested_end_date: Optional[date] = None
+    estimated_budget: Optional[Decimal] = None
+    
+    # Requirements
+    functional_requirements: List[str] = Field(default_factory=list)
+    non_functional_requirements: List[str] = Field(default_factory=list)
+    constraints: List[str] = Field(default_factory=list)
+    assumptions: List[str] = Field(default_factory=list)
+    
+    # Resources
+    required_skills: List[str] = Field(default_factory=list)
+    estimated_team_size: Optional[int] = None
+    
+    # Risk assessment
+    identified_risks: List[str] = Field(default_factory=list)
+    risk_level: str = "medium"  # low, medium, high, critical
+    
+    # Approval workflow
+    status: ApprovalStatus = ApprovalStatus.PENDING
+    approvals: List[ProjectApproval] = Field(default_factory=list)
+    
+    # Decision
+    decision_date: Optional[datetime] = None
+    decision_notes: Optional[str] = None
+    approved_budget: Optional[Decimal] = None
+    assigned_pm: Optional[str] = None
+
+class ProjectSnapshot(BaseDocument):
+    """Project snapshot for point-in-time reporting"""
+    project_id: str
+    snapshot_date: datetime = Field(default_factory=datetime.utcnow)
+    snapshot_type: str  # "weekly", "monthly", "milestone", "ad_hoc"
+    
+    # Status at snapshot time
+    status: Status
+    health_status: HealthStatus
+    percent_complete: float
+    
+    # Financial snapshot
+    budget_spent: Decimal = Field(default=Decimal('0'))
+    budget_committed: Decimal = Field(default=Decimal('0'))
+    budget_variance: Decimal = Field(default=Decimal('0'))
+    
+    # Timeline snapshot
+    schedule_variance_days: int = 0
+    critical_path_delay: int = 0
+    
+    # Team snapshot
+    team_size: int = 0
+    team_utilization: float = 0.0
+    
+    # Progress metrics
+    tasks_completed: int = 0
+    tasks_remaining: int = 0
+    milestones_completed: int = 0
+    milestones_remaining: int = 0
+    
+    # Issues and risks
+    open_issues: int = 0
+    open_risks: int = 0
+    risk_score: float = 0.0
+    
+    # Comments and notes
+    status_notes: Optional[str] = None
+    achievements: List[str] = Field(default_factory=list)
+    challenges: List[str] = Field(default_factory=list)
+    next_period_plans: List[str] = Field(default_factory=list)
+
+# Enhanced project model with lifecycle management
+class ProjectEnhanced(BaseDocument):
+    """Enhanced project model with full lifecycle support"""
+    # Basic project information (inherited from base project model)
     name: str = Field(..., max_length=200)
     code: str = Field(..., max_length=50)
     description: Optional[str] = None
@@ -239,20 +196,34 @@ class EnhancedProject(BaseDocument):
     health_status: HealthStatus = HealthStatus.GREEN
     priority: Priority = Priority.MEDIUM
     
-    # Lifecycle phase
-    current_phase: ProjectPhase = ProjectPhase.INITIATION
-    
     # Hierarchy
     portfolio_id: Optional[str] = None
     parent_project_id: Optional[str] = None
-    template_id: Optional[str] = None  # Reference to template used
+    program_id: Optional[str] = None
     
     # Ownership
     project_manager_id: str
     sponsor_id: Optional[str] = None
     team_members: List[str] = Field(default_factory=list)
     
-    # Timeline
+    # Lifecycle management
+    phases: List[ProjectPhase] = Field(default_factory=list)
+    current_phase_id: Optional[str] = None
+    
+    # Baseline management
+    baselines: List[ProjectBaseline] = Field(default_factory=list)
+    current_baseline_id: Optional[str] = None
+    
+    # Approval workflow
+    approvals: List[ProjectApproval] = Field(default_factory=list)
+    
+    # Template reference
+    template_id: Optional[str] = None
+    
+    # Financial tracking (enhanced)
+    financial_metrics: Dict[str, Any] = Field(default_factory=dict)
+    
+    # Timeline (enhanced)
     planned_start_date: Optional[date] = None
     planned_end_date: Optional[date] = None
     actual_start_date: Optional[date] = None
@@ -260,93 +231,48 @@ class EnhancedProject(BaseDocument):
     
     # Progress tracking
     percent_complete: float = Field(default=0.0, ge=0, le=100)
-    milestones: List[Milestone] = Field(default_factory=list)
-    tasks: List[ProjectTask] = Field(default_factory=list)
     
-    # Financial information
-    financials: ProjectFinancials = Field(default_factory=ProjectFinancials)
-    
-    # Resource management
-    resource_allocations: List[ResourceAllocation] = Field(default_factory=list)
-    
-    # Risk and issue management
-    risks: List[ProjectRisk] = Field(default_factory=list)
-    issues: List[ProjectIssue] = Field(default_factory=list)
-    risk_score: float = Field(default=0.0, ge=0, le=1)
-    
-    # Dependencies
-    dependencies: List[ProjectDependency] = Field(default_factory=list)
-    
-    # Approval workflow
-    approvals: List[ProjectApproval] = Field(default_factory=list)
-    requires_approval: bool = True
-    
-    # Baseline management
-    baselines: List[ProjectBaseline] = Field(default_factory=list)
-    current_baseline_id: Optional[str] = None
-    
-    # Documents and attachments
-    document_urls: List[str] = Field(default_factory=list)
-    
-    # Communication
-    last_status_update: Optional[str] = None
-    last_status_date: Optional[date] = None
-    
-    # Custom fields for extensibility
+    # Custom fields for flexibility
     custom_fields: Dict[str, Any] = Field(default_factory=dict)
-    
-    class Config:
-        json_encoders = {
-            datetime: lambda v: v.isoformat(),
-            date: lambda v: v.isoformat(),
-            Decimal: lambda v: float(v)
-        }
 
-class ProjectIntakeForm(BaseModel):
-    """Project intake/request form"""
-    # Basic project information
-    project_name: str = Field(..., max_length=200)
-    business_justification: str
+# Response models
+class ProjectTemplateResponse(BaseModel):
+    """Project template response"""
+    id: str
+    name: str
+    description: Optional[str]
     project_type: ProjectType
-    methodology: ProjectMethodology = ProjectMethodology.AGILE
-    priority: Priority = Priority.MEDIUM
-    
-    # Timeline
-    requested_start_date: Optional[date] = None
-    target_end_date: Optional[date] = None
-    
-    # Financial
-    estimated_budget: Optional[Decimal] = None
-    budget_source: Optional[str] = None
-    
-    # Stakeholders
-    project_sponsor: str
-    business_owner: str
-    preferred_project_manager: Optional[str] = None
-    
-    # Strategic alignment
-    portfolio_id: Optional[str] = None
-    strategic_objectives: List[str] = Field(default_factory=list)  # Objective IDs
-    
-    # Scope and requirements
-    project_scope: str
-    key_requirements: List[str] = Field(default_factory=list)
-    success_criteria: List[str] = Field(default_factory=list)
-    
-    # Resources
-    estimated_team_size: Optional[int] = None
-    required_skills: List[str] = Field(default_factory=list)
-    
-    # Risk assessment
-    identified_risks: List[str] = Field(default_factory=list)
-    risk_mitigation_notes: Optional[str] = None
-    
-    # Additional information
-    business_case_url: Optional[str] = None
-    supporting_documents: List[str] = Field(default_factory=list)
-    
-class ProjectCreateFromIntake(BaseModel):
-    """Schema for creating project from intake form"""
-    intake_data: ProjectIntakeForm
-    template_id: Optional[str] = None
-    auto_approve: bool = False
+    methodology: ProjectMethodology
+    phases: List[ProjectPhase]
+    estimated_duration_days: Optional[int]
+    estimated_budget: Optional[Decimal]
+    usage_count: int
+    created_at: datetime
+
+class ProjectIntakeResponse(BaseModel):
+    """Project intake form response"""
+    id: str
+    project_title: str
+    business_justification: str
+    requestor_id: str
+    project_type: ProjectType
+    priority: Priority
+    status: ApprovalStatus
+    estimated_budget: Optional[Decimal]
+    requested_start_date: Optional[date]
+    created_at: datetime
+
+class ProjectSnapshotResponse(BaseModel):
+    """Project snapshot response"""
+    id: str
+    project_id: str
+    snapshot_date: datetime
+    snapshot_type: str
+    status: Status
+    health_status: HealthStatus
+    percent_complete: float
+    budget_variance: Decimal
+    schedule_variance_days: int
+    team_size: int
+    open_issues: int
+    open_risks: int
