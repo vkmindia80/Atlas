@@ -1,3 +1,9 @@
+// Export type aliases for better reusability
+export type PortfolioType = 'strategic' | 'operational' | 'innovation' | 'maintenance';
+export type Status = 'draft' | 'active' | 'on_hold' | 'completed' | 'cancelled';
+export type HealthStatus = 'green' | 'yellow' | 'red';
+export type Priority = 'low' | 'medium' | 'high' | 'critical';
+
 export interface Portfolio {
   id: string;
   name: string;
