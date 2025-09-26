@@ -111,8 +111,13 @@ async def get_current_user(credentials = Depends(security)):
                 detail="User not found"
             )
         
-        # Return as dict for now (avoiding model conversion issues)
-        return user_doc
+        # Create a simple namespace object to allow dot notation access
+        class UserNamespace:
+            def __init__(self, data):
+                for key, value in data.items():
+                    setattr(self, key, value)
+        
+        return UserNamespace(user_doc)
         
     except Exception as e:
         raise HTTPException(
