@@ -22,18 +22,69 @@ interface TaskCard {
   due_date?: string;
 }
 
-export const ProjectKanban: React.FC<ProjectKanbanProps> = ({ projectDetail }) => {
+export const ProjectKanban: React.FC<ProjectKanbanProps> = ({ projectDetail, onUpdate }) => {
   const { tasks } = projectDetail;
+  const [draggedTask, setDraggedTask] = useState<string | null>(null);
+  const [isUpdating, setIsUpdating] = useState(false);
 
   const columns = [
-    { id: 'not_started', title: 'To Do', color: 'bg-gray-100' },
-    { id: 'in_progress', title: 'In Progress', color: 'bg-blue-100' },
-    { id: 'completed', title: 'Done', color: 'bg-green-100' },
-    { id: 'on_hold', title: 'On Hold', color: 'bg-yellow-100' }
+    { id: 'not_started', title: 'To Do', color: 'bg-gray-100', textColor: 'text-gray-700' },
+    { id: 'in_progress', title: 'In Progress', color: 'bg-blue-100', textColor: 'text-blue-700' },
+    { id: 'completed', title: 'Done', color: 'bg-green-100', textColor: 'text-green-700' },
+    { id: 'on_hold', title: 'On Hold', color: 'bg-yellow-100', textColor: 'text-yellow-700' }
   ];
 
   const getTasksForStatus = (status: string) => {
     return tasks.filter(task => task.status === status);
+  };
+
+  const handleDragStart = (result: any) => {
+    setDraggedTask(result.draggableId);
+  };
+
+  const handleDragEnd = async (result: any) => {
+    setDraggedTask(null);
+    
+    if (!result.destination) {
+      return;
+    }
+
+    const taskId = result.draggableId;
+    const newStatus = result.destination.droppableId;
+    
+    // Find the task that was moved
+    const task = tasks.find(t => t.id === taskId);
+    if (!task || task.status === newStatus) {
+      return;
+    }
+
+    try {
+      setIsUpdating(true);
+      
+      // Update task status
+      await projectService.updateTask(projectDetail.project.id, taskId, {
+        status: newStatus,
+        ...(newStatus === 'completed' && { percent_complete: 100 }),
+        ...(newStatus === 'in_progress' && task.percent_complete === 0 && { percent_complete: 10 }),
+      });
+
+      // Refresh project data
+      onUpdate();
+    } catch (error) {
+      console.error('Failed to update task status:', error);
+      // Could add toast notification here
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  const getPriorityColor = (priority: string) => {
+    switch (priority?.toLowerCase()) {
+      case 'high': return 'bg-red-100 text-red-800 border-red-200';
+      case 'medium': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      case 'low': return 'bg-blue-100 text-blue-800 border-blue-200';
+      default: return 'bg-gray-100 text-gray-800 border-gray-200';
+    }
   };
 
   return (
