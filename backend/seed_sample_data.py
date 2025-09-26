@@ -270,8 +270,8 @@ async def create_sample_portfolios():
             "portfolio_manager_id": random.choice([u["_id"] for u in SAMPLE_USERS if u["role"] == "portfolio_manager"]),
             "sponsors": [SAMPLE_USERS[1]["_id"]],
             "stakeholders": [SAMPLE_USERS[0]["_id"], SAMPLE_USERS[1]["_id"]],
-            "start_date": date.today() - timedelta(days=random.randint(30, 365)),
-            "end_date": date.today() + timedelta(days=random.randint(180, 730)),
+            "start_date": (date.today() - timedelta(days=random.randint(30, 365))).isoformat(),
+            "end_date": (date.today() + timedelta(days=random.randint(180, 730))).isoformat(),
             "financial_metrics": {
                 "total_budget": float(random.randint(500000, 5000000)),
                 "allocated_budget": 0,  # Will be calculated
