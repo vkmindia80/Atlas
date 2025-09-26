@@ -1,5 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import { ClockIcon, UserIcon, FlagIcon } from '@heroicons/react/24/outline';
 import { ProjectDetail } from '../../types/project';
+import { projectService } from '../../services/projectService';
 
 interface ProjectKanbanProps {
   projectDetail: ProjectDetail;
