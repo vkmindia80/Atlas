@@ -169,7 +169,7 @@ export const ProjectKanban: React.FC<ProjectKanbanProps> = ({ projectDetail, onU
                                 {task.assignee_id && (
                                   <div className="flex items-center">
                                     <UserIcon className="h-3 w-3 mr-1" />
-                                    <span className="truncate max-w-[80px]">{task.assigned_to}</span>
+                                    <span className="truncate max-w-[80px]">{task.assignee_id}</span>
                                   </div>
                                 )}
                               </div>
