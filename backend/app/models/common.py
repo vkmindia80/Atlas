@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from typing import Optional, Dict, Any, List
 from datetime import datetime
 from enum import Enum
@@ -6,6 +6,8 @@ import uuid
 
 class BaseDocument(BaseModel):
     """Base model for all documents"""
+    model_config = ConfigDict(populate_by_name=True)
+    
     id: str = Field(default_factory=lambda: str(uuid.uuid4()), alias="_id")
     tenant_id: str = Field(..., description="Tenant ID for multi-tenancy")
     created_at: datetime = Field(default_factory=datetime.utcnow)
@@ -14,9 +16,6 @@ class BaseDocument(BaseModel):
     updated_by: Optional[str] = None
     is_active: bool = True
     metadata: Dict[str, Any] = Field(default_factory=dict)
-
-    class Config:
-        populate_by_name = True
 
 class AuditLog(BaseModel):
     """Audit log entry"""
