@@ -68,6 +68,9 @@ app.include_router(auth.router, prefix=settings.API_V1_STR, tags=["Authenticatio
 app.include_router(users.router, prefix=settings.API_V1_STR, tags=["Users"])
 app.include_router(portfolios.router, prefix=f"{settings.API_V1_STR}", tags=["Portfolios"])
 app.include_router(projects.router, prefix=f"{settings.API_V1_STR}", tags=["Projects"])
+app.include_router(tasks.router, prefix=f"{settings.API_V1_STR}", tags=["Tasks"])
+app.include_router(project_lifecycle.router, prefix=f"{settings.API_V1_STR}", tags=["Project Lifecycle"])
+app.include_router(portfolio_projects.router, prefix=f"{settings.API_V1_STR}", tags=["Portfolio Projects"])
 app.include_router(admin.router, prefix=settings.API_V1_STR, tags=["Administration"])
 
 # Root endpoint
