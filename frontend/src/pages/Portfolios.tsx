@@ -46,10 +46,10 @@ export const Portfolios: React.FC = () => {
 
   const getPriorityColor = (priority: Priority) => {
     switch (priority) {
-      case Priority.CRITICAL: return 'text-red-600';
-      case Priority.HIGH: return 'text-orange-600';
-      case Priority.MEDIUM: return 'text-yellow-600';
-      case Priority.LOW: return 'text-green-600';
+      case 'critical': return 'text-red-600';
+      case 'high': return 'text-orange-600';
+      case 'medium': return 'text-yellow-600';
+      case 'low': return 'text-green-600';
       default: return 'text-gray-600';
     }
   };
