@@ -48,12 +48,15 @@ async def get_portfolios(
     # Enhance with project counts
     enhanced_portfolios = []
     for portfolio in portfolios:
-        project_count = await db.portfolio_projects.count_documents({
+        portfolio_projects_collection = db.get_default_database().portfolio_projects
+        projects_collection = db.get_default_database().projects
+        
+        project_count = await portfolio_projects_collection.count_documents({
             "portfolio_id": portfolio["id"], 
             "is_active": True
         })
         
-        active_project_count = await db.projects.count_documents({
+        active_project_count = await projects_collection.count_documents({
             "portfolio_id": portfolio["id"],
             "status": "active",
             "is_active": True
