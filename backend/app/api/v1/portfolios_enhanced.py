@@ -79,7 +79,8 @@ async def create_portfolio(
 ):
     """Create a new portfolio"""
     # Check if portfolio code is unique within tenant
-    existing = await db.portfolios.find_one({
+    portfolios_collection = db.get_default_database().portfolios
+    existing = await portfolios_collection.find_one({
         "tenant_id": current_user.tenant_id,
         "code": portfolio_data["code"],
         "is_active": True
