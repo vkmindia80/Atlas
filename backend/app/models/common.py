@@ -17,7 +17,6 @@ class BaseDocument(BaseModel):
 
     class Config:
         populate_by_name = True
-        json_encoders = {datetime: lambda v: v.isoformat()}
 
 class AuditLog(BaseModel):
     """Audit log entry"""
