@@ -87,7 +87,7 @@ Configure your environment variables in `.env` files for both backend and fronte
 - ✅ Advanced budget & cost tracking with breakdown analysis and forecasting
 - ✅ Complete issues & risks management with RAID log functionality
 
-#### Phase 2.3: Portfolio Dashboard & KPIs (Next)
+#### Phase 2.3: Portfolio Dashboard & KPIs (Current) 🔄
 - Portfolio dashboard with real-time KPIs
 - Status count aggregations
 - Budget utilization tracking
