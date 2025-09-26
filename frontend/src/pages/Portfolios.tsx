@@ -37,9 +37,9 @@ export const Portfolios: React.FC = () => {
 
   const getHealthColor = (health: HealthStatus) => {
     switch (health) {
-      case HealthStatus.GREEN: return 'bg-green-500';
-      case HealthStatus.YELLOW: return 'bg-yellow-500';
-      case HealthStatus.RED: return 'bg-red-500';
+      case 'green': return 'bg-green-500';
+      case 'yellow': return 'bg-yellow-500';
+      case 'red': return 'bg-red-500';
       default: return 'bg-gray-500';
     }
   };
