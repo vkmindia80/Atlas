@@ -170,7 +170,7 @@ export const ProjectDocuments: React.FC<ProjectDocumentsProps> = ({
     }
   };
 
-  const categories = ['all', ...new Set(allDocuments.map(doc => doc.category))];
+  const categories = ['all', ...Array.from(new Set(allDocuments.map(doc => doc.category)))];
 
   return (
     <div className="space-y-6" data-testid="project-documents">
