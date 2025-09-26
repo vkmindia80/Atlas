@@ -11,7 +11,7 @@ from datetime import datetime
 from typing import Dict, Any, Optional
 
 class AtlasPMAPITester:
-    def __init__(self, base_url: str = "https://roadmap-checker-5.preview.emergentagent.com"):
+    def __init__(self, base_url: str = "https://code-changelog.preview.emergentagent.com"):
         self.base_url = base_url
         self.token = None
         self.refresh_token = None
