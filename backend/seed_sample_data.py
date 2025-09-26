@@ -391,7 +391,7 @@ async def create_sample_projects():
         # Add sample milestones
         milestone_count = random.randint(3, 8)
         for j in range(milestone_count):
-            milestone_date = start_date + timedelta(days=random.randint(30, duration-30))
+            milestone_date = start_date + timedelta(days=random.randint(10, max(duration-10, 20)))
             milestone = {
                 "id": str(uuid.uuid4()),
                 "name": f"Milestone {j+1}: {random.choice(['Design Complete', 'Development Complete', 'Testing Complete', 'Go-Live', 'Phase Gate'])}",
