@@ -55,6 +55,54 @@ async def connect_to_mongo():
         IndexModel([("domain", ASCENDING)], unique=True),
         IndexModel([("status", ASCENDING)])
     ])
+    
+    # Tasks collection indexes
+    tasks_collection = database.tasks
+    await tasks_collection.create_indexes([
+        IndexModel([("tenant_id", ASCENDING)]),
+        IndexModel([("project_id", ASCENDING)]),
+        IndexModel([("status", ASCENDING)]),
+        IndexModel([("priority", ASCENDING)]),
+        IndexModel([("planned_start_date", ASCENDING)]),
+        IndexModel([("planned_end_date", ASCENDING)]),
+        IndexModel([("assignments.user_id", ASCENDING)])
+    ])
+    
+    # Portfolio projects relationship indexes
+    portfolio_projects_collection = database.portfolio_projects
+    await portfolio_projects_collection.create_indexes([
+        IndexModel([("tenant_id", ASCENDING)]),
+        IndexModel([("portfolio_id", ASCENDING)]),
+        IndexModel([("project_id", ASCENDING)]),
+        IndexModel([("portfolio_id", ASCENDING), ("project_id", ASCENDING)], unique=True),
+        IndexModel([("relationship_type", ASCENDING)])
+    ])
+    
+    # Project templates indexes
+    project_templates_collection = database.project_templates
+    await project_templates_collection.create_indexes([
+        IndexModel([("tenant_id", ASCENDING)]),
+        IndexModel([("project_type", ASCENDING)]),
+        IndexModel([("is_active", ASCENDING)])
+    ])
+    
+    # Project intake forms indexes
+    project_intake_collection = database.project_intake_forms
+    await project_intake_collection.create_indexes([
+        IndexModel([("tenant_id", ASCENDING)]),
+        IndexModel([("requestor_id", ASCENDING)]),
+        IndexModel([("status", ASCENDING)]),
+        IndexModel([("project_type", ASCENDING)])
+    ])
+    
+    # Project snapshots indexes
+    project_snapshots_collection = database.project_snapshots
+    await project_snapshots_collection.create_indexes([
+        IndexModel([("tenant_id", ASCENDING)]),
+        IndexModel([("project_id", ASCENDING)]),
+        IndexModel([("snapshot_date", ASCENDING)]),
+        IndexModel([("snapshot_type", ASCENDING)])
+    ])
 
 async def close_mongo_connection():
     """Close database connection"""
