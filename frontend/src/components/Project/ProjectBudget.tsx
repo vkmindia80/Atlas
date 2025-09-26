@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { CurrencyDollarIcon, TrendingUpIcon, TrendingDownIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline';
+import { CurrencyDollarIcon, ArrowTrendingUpIcon, ArrowTrendingDownIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 import { ProjectDetail } from '../../types/project';
 
 interface ProjectBudgetProps {
