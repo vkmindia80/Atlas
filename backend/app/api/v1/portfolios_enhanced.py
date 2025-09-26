@@ -42,7 +42,8 @@ async def get_portfolios(
     if portfolio_manager_id:
         query["portfolio_manager_id"] = portfolio_manager_id
     
-    portfolios = await db.portfolios.find(query).skip(skip).limit(limit).to_list(None)
+    portfolios_collection = db.get_default_database().portfolios
+    portfolios = await portfolios_collection.find(query).skip(skip).limit(limit).to_list(None)
     
     # Enhance with project counts
     enhanced_portfolios = []
