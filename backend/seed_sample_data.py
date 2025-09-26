@@ -233,8 +233,8 @@ async def create_strategic_objectives():
             "priority": random.choice(PRIORITIES),
             "owner_id": SAMPLE_USERS[2]["_id"],  # Portfolio manager
             "stakeholders": [SAMPLE_USERS[1]["_id"]],  # PMO admin
-            "start_date": date.today(),
-            "target_date": date.today() + timedelta(days=365),
+            "start_date": date.today().isoformat(),
+            "target_date": (date.today() + timedelta(days=365)).isoformat(),
             "kpis": [],
             "success_criteria": [f"Achieve target metrics for {name.lower()}"],
             "created_at": datetime.utcnow(),
