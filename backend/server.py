@@ -66,9 +66,14 @@ async def health_check():
 # Include API routes
 app.include_router(auth.router, prefix=settings.API_V1_STR, tags=["Authentication"])
 app.include_router(users.router, prefix=settings.API_V1_STR, tags=["Users"])
-app.include_router(portfolios.router, prefix=settings.API_V1_STR, tags=["Portfolios"])
-app.include_router(projects.router, prefix=settings.API_V1_STR, tags=["Projects"])
+app.include_router(portfolios.router, prefix=f"{settings.API_V1_STR}/portfolios", tags=["Portfolios"])
+app.include_router(projects.router, prefix=f"{settings.API_V1_STR}/projects", tags=["Projects"])
 app.include_router(admin.router, prefix=settings.API_V1_STR, tags=["Administration"])
+
+# Enhanced modules
+from app.api.v1 import portfolios_enhanced, projects_enhanced
+app.include_router(portfolios_enhanced.router, prefix=f"{settings.API_V1_STR}/portfolios", tags=["Enhanced Portfolios"])
+app.include_router(projects_enhanced.router, prefix=f"{settings.API_V1_STR}/projects", tags=["Enhanced Projects"])
 
 # Root endpoint
 @app.get("/")
