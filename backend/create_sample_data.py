@@ -315,10 +315,10 @@ async def create_sample_projects(client, tenant_id, user_ids, portfolio_ids):
             "project_manager_id": random.choice(user_ids[4:]),  # PM users
             "sponsor_id": random.choice(user_ids[1:4]),
             "team_members": random.sample(user_ids[4:], random.randint(3, 6)),
-            "planned_start_date": start_date,
-            "planned_end_date": end_date,
-            "actual_start_date": actual_start,
-            "actual_end_date": None if random.choice([True, False]) else end_date + timedelta(days=random.randint(-10, 30)),
+            "planned_start_date": start_date.isoformat(),
+            "planned_end_date": end_date.isoformat(),
+            "actual_start_date": actual_start.isoformat(),
+            "actual_end_date": None if random.choice([True, False]) else (end_date + timedelta(days=random.randint(-10, 30))).isoformat(),
             "percent_complete": random.uniform(10, 95) if i < 8 else 100,
             "milestones": [],
             "financials": {
