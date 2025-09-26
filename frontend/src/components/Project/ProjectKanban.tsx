@@ -18,7 +18,7 @@ interface TaskCard {
   estimated_hours?: number;
   percent_complete: number;
   labels?: string[];
-  assigned_to?: string;
+  assignee_id?: string;
   due_date?: string;
 }
 
