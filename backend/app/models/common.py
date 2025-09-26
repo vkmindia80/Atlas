@@ -33,7 +33,7 @@ class AuditLog(BaseModel):
     timestamp: datetime = Field(default_factory=datetime.utcnow)
     
     class Config:
-        json_encoders = {datetime: lambda v: v.isoformat()}
+        pass
 
 class Priority(str, Enum):
     LOW = "low"
