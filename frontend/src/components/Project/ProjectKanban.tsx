@@ -9,6 +9,19 @@ interface ProjectKanbanProps {
   onUpdate: () => void;
 }
 
+interface TaskCard {
+  id: string;
+  name: string;
+  description?: string;
+  priority: string;
+  status: string;
+  estimated_hours?: number;
+  percent_complete: number;
+  labels?: string[];
+  assigned_to?: string;
+  due_date?: string;
+}
+
 export const ProjectKanban: React.FC<ProjectKanbanProps> = ({ projectDetail }) => {
   const { tasks } = projectDetail;
 
