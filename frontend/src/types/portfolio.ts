@@ -9,10 +9,10 @@ export interface Portfolio {
   name: string;
   code: string;
   description?: string;
-  portfolio_type: 'strategic' | 'operational' | 'innovation' | 'maintenance';
-  status: 'draft' | 'active' | 'on_hold' | 'completed' | 'cancelled';
-  health_status: 'green' | 'yellow' | 'red';
-  priority: 'low' | 'medium' | 'high' | 'critical';
+  portfolio_type: PortfolioType;
+  status: Status;
+  health_status: HealthStatus;
+  priority: Priority;
   portfolio_manager_id: string;
   sponsors: string[];
   stakeholders: string[];
