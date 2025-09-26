@@ -439,7 +439,7 @@ async def create_portfolio_projects():
                 "tenant_id": TENANT_ID,
                 "portfolio_id": project["portfolio_id"],
                 "project_id": project["_id"],
-                "added_date": date.today() - timedelta(days=random.randint(0, 90)),
+                "added_date": (date.today() - timedelta(days=random.randint(0, 90))).isoformat(),
                 "strategic_weight": random.uniform(0.1, 1.0),
                 "budget_allocation": project["financials"]["total_budget"],
                 "priority_ranking": random.randint(1, 10),
