@@ -63,7 +63,15 @@ const AppContent: React.FC = () => {
       <Route path="/portfolios" element={
         <ProtectedRoute>
           <Layout>
-            <Portfolios />
+            <PortfolioList />
+          </Layout>
+        </ProtectedRoute>
+      } />
+      
+      <Route path="/portfolios/:portfolioId" element={
+        <ProtectedRoute>
+          <Layout>
+            <PortfolioDashboard />
           </Layout>
         </ProtectedRoute>
       } />
@@ -73,9 +81,15 @@ const AppContent: React.FC = () => {
           <Layout>
             <div className="p-6">
               <h1 className="text-2xl font-semibold text-gray-900">Projects</h1>
-              <p className="mt-2 text-gray-600">Projects management will be implemented in Phase 2.</p>
+              <p className="mt-2 text-gray-600">Enhanced project management will be available soon with Gantt charts, Kanban boards, and more.</p>
             </div>
           </Layout>
+        </ProtectedRoute>
+      } />
+      
+      <Route path="/projects/:projectId" element={
+        <ProtectedRoute>
+          <ProjectDetail />
         </ProtectedRoute>
       } />
       
